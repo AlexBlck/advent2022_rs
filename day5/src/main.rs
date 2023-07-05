@@ -67,6 +67,53 @@ fn part1() -> () {
 }
 
 fn part2() -> () {
+    let mut containers: Vec<Vec<&str>> = Vec::new();
+    // nth crate contents: 4n + 1
+    // line length: 4n - 1
+    let mut reading_containers = true;
+    for line in INPUT.lines(){
+        if reading_containers {
+            if line == "" {
+                reading_containers = false;
+                for container in containers.iter_mut() {
+                    container.pop();
+                    container.reverse();
+                }
+            } else {
+                let num_containers = (line.len() + 1) / 4; 
+                for n in 0..num_containers {
+                    match containers.get_mut(n){
+                        Some(x) => {
+                            let crate_contents = line.get(n*4+1..n*4+2).unwrap();
+                            if crate_contents != " " {
+                                x.push(crate_contents);
+                            }
+                        }
+                        None => {
+                            let crate_contents = line.get(n*4+1..n*4+2).unwrap();
+                            if crate_contents != " " {
+                                containers.push(vec![crate_contents]);
+                            } else {
+                                containers.push(vec![]);
+                            }
+                        }
+                    }
+                }
+        }
+    } else {
+        let (qty, source_container_id, dest_container_id) = parse_instruction_line(line);
+        // cast qty from u32 to usize
+        let source_container = containers.get_mut(source_container_id - 1).unwrap();
+            let contents = source_container.split_off(source_container.len() - qty);
+            let dest_container = containers.get_mut(dest_container_id - 1).unwrap();
+            dest_container.extend(contents);
+        }
+    } 
+    let mut final_answer = String::new();
+    for container in containers.iter_mut() {
+        final_answer.push_str(container.pop().unwrap());
+    }
+    println!("Final answer: {}", final_answer);
 }
 
 fn main() {
